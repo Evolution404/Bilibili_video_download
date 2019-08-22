@@ -21,7 +21,7 @@ import imageio
 imageio.plugins.ffmpeg.download()
 
 # 线程信号量, 限制并发数
-S = threading.Semaphore(5)
+S = threading.Semaphore(10)
 
 # 正在下载的视频
 currentPage = []
@@ -82,11 +82,18 @@ def callbackfunc(blocknum, blocksize, totalsize):
 
 def Schedule_cmd(title, page):
     start_time = time.time()
+    last_size = 0
     def Schedule(blocknum, blocksize, totalsize):
+        nonlocal start_time
+        nonlocal last_size
         # 进度条打印在第几行
         lineNum = currentPage.index(page)+1
         POS(0, lineNum)
-        speed = (blocknum * blocksize) / (time.time() - start_time)
+        speed = (blocknum * blocksize - last_size) / (time.time() - start_time)
+        if(time.time()-start_time>1):
+            start_time = time.time()
+            last_size = blocknum * blocksize
+
         # speed_str = " Speed: %.2f" % speed
         speed_str = " Speed: %s" % format_size(speed)
         recv_size = blocknum * blocksize
@@ -94,9 +101,10 @@ def Schedule_cmd(title, page):
         # 设置下载进度条
         percent = recv_size / totalsize
         percent_str = "%.2f%%" % (percent * 100)
+        total = ('%.2fM' % (blocknum*blocksize/1000000)).rjust(7,' ')+ '/' + ('%.2fM' % (totalsize/1000000)).ljust(8,' ')
         n = round(percent * 50)
         s = ('#' * n).ljust(50, '-')
-        print('P{}:'.format(page) + '[' + s + ']  ' + percent_str.ljust(6, ' ') + speed_str)
+        print('P{}:'.format(page).ljust(5,' ') + '[' + s + ']  ' + percent_str.rjust(6, ' ') + total + speed_str)
     return Schedule
 
 
