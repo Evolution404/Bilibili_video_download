@@ -90,7 +90,7 @@ def Schedule_cmd(title, page):
         lineNum = currentPage.index(page)+1
         POS(0, lineNum)
         speed = (blocknum * blocksize - last_size) / (time.time() - start_time)
-        if(time.time()-start_time>1):
+        if time.time()-start_time>1:
             start_time = time.time()
             last_size = blocknum * blocksize
 
@@ -101,7 +101,7 @@ def Schedule_cmd(title, page):
         # 设置下载进度条
         percent = recv_size / totalsize
         percent_str = "%.2f%%" % (percent * 100)
-        total = ('%.2fM' % (blocknum*blocksize/1000000)).rjust(7,' ')+ '/' + ('%.2fM' % (totalsize/1000000)).ljust(8,' ')
+        total = ('%.2fM' % (blocknum*blocksize/1000000)).rjust(8,' ')+ '/' + ('%.2fM' % (totalsize/1000000)).ljust(8,' ')
         n = round(percent * 50)
         s = ('#' * n).ljust(50, '-')
         print('P{}:'.format(page).ljust(5,' ') + '[' + s + ']  ' + percent_str.rjust(6, ' ') + total + speed_str)
@@ -197,7 +197,10 @@ if __name__ == '__main__':
     start_time = time.time()
     # 用户输入av号或者视频链接地址
     print('*' * 30 + 'B站视频下载小助手' + '*' * 30)
-    start = input('请输入您要下载的B站av号或者视频链接地址:')
+    if len(sys.argv) == 3:
+        start = sys.argv[1]
+    else:
+        start = input('请输入您要下载的B站av号或者视频链接地址:')
     if start.isdigit() == True:  # 如果输入的是av号
         # 获取cid的api, 传入aid即可
         start_url = 'https://api.bilibili.com/x/web-interface/view?aid=' + start
@@ -212,7 +215,10 @@ if __name__ == '__main__':
     # <accept_format><![CDATA[flv,flv720,flv480,flv360]]></accept_format>
     # <accept_description><![CDATA[高清 1080P,高清 720P,清晰 480P,流畅 360P]]></accept_description>
     # <accept_quality><![CDATA[80,64,32,16]]></accept_quality>
-    quality = input('请输入您要下载视频的清晰度(1080p:80;720p:64;480p:32;360p:16)(填写80或64或32或16):')
+    if len(sys.argv) == 3:
+        quality = sys.argv[2]
+    else:
+        quality = input('请输入您要下载视频的清晰度(1080p:80;720p:64;480p:32;360p:16)(填写80或64或32或16):')
     # 获取视频的cid,title
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 Safari/537.36'
